@@ -1,0 +1,19 @@
+name: Echo Secret and Variable
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  echo-values:
+    runs-on: ubuntu-latest
+    env:
+      newVar: "This is a sample variable value"
+    steps:
+      - name: Echo SECRET1 and newVar
+        env:
+          SECRET1: ${{ secrets.SECRET1 }}
+        run: |
+          echo "Value of SECRET1: $SECRET1"
+          echo "Value of newVar: $newVar"
