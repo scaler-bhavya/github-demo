@@ -1,0 +1,11 @@
+name: Continue on Error Example
+
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 1
+        continue-on-error: true
+      - run: echo "This will still run despite the error above"
