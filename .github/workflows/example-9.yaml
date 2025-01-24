@@ -1,25 +1,28 @@
-name: Parallel and Concurrent Workflow
+name: Parallelism and Concurrency Example
 
 on: push
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    concurrency:
+      group: build-group
+      cancel-in-progress: true
     steps:
       - run: echo "Building the app"
 
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [12, 14, 16]
     concurrency:
       group: test-group
       cancel-in-progress: true
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [18, 20]
     steps:
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm install
-      - run: npm test
+          node-version: ${{ matrix.node }}
+      - run: echo "Testing on ${{ matrix.os }} with Node.js ${{ matrix.node }}"
