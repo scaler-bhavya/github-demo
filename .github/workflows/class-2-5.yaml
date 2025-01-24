@@ -1,0 +1,54 @@
+name: Gitflow Workflow
+
+on:
+  push:
+    branches:
+      - main # Trigger for the main branch
+      - develop # Trigger for the develop branch
+      - "feature/**" # Trigger for feature branches
+      - "release/**" # Trigger for release branches
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Dependencies
+        run: |
+          cd example4/js
+          npm install
+
+      - name: Run Tests
+        run: |
+          cd example4/js
+          npm test
+
+  deploy:
+    name: Deploy to Environment
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ github.ref_name == 'main' || startsWith(github.ref_name, 'release/') }}
+
+    steps:
+      - name: Deploy to Production or Staging
+        run: |
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "Deploying to production..."
+          elif [[ "${{ github.ref_name }}" == release/* ]]; then
+            echo "Deploying to staging..."
+          fi
+
