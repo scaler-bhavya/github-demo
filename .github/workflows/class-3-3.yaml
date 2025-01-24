@@ -1,0 +1,46 @@
+name: Example 2
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  newVar: "This is a global variable"
+
+jobs:
+  job1:
+    name: First Job - Echo Context and Secret
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Event Context
+        run: |
+          echo "GitHub Event Name: ${{ github.event_name }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Branch: ${{ github.ref_name }}"
+      - name: Access Secret and Variable
+        env:
+          SECRET1: ${{ secrets.SECRET1 }}
+        run: |
+          echo "Value of SECRET1: $SECRET1"
+          echo "Value of newVar: $newVar"
+      - name: Set Output for Second Job
+        id: job1_output
+        run: echo "outputFromJob1=Hello from Job 1!" >> $GITHUB_OUTPUT
+
+  job2:
+    name: Second Job - Use Output from Job 1
+    needs: job1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Output from Job 1
+        run: |
+          echo "Message from Job 1: ${{ needs.job1.outputs.outputFromJob1 }}"
+      - name: Print GitHub Context
+        run: |
+          echo "Event Trigger: ${{ github.event_name }}"
+          echo "Triggered by: ${{ github.actor }}"
